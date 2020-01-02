@@ -1,2 +1,5 @@
 ---
-# tasks file for autoscaling.yml
+
+- include_tasks: 1loadbalencer.yml
+- include_tasks: 2launch_config.yml
+- include_tasks: 3autoscaling.yml

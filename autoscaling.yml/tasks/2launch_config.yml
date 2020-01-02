@@ -1,0 +1,11 @@
+---
+
+- name: create launch config
+  ec2_lc:
+      name: mylc
+      image_id: ami-09f8a37134737968b
+      key_name: tower
+      region: us-east-1
+      security_groups: sg-4e7a7917
+      instance_type: t2.micro
+  tags: launch_config

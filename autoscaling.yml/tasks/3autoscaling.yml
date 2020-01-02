@@ -1,0 +1,86 @@
+---
+# create autoscaling group
+ - name: create autoscale groups
+   ec2_asg:
+      name: myasg
+      load_balancers: mylb
+      launch_config_name: mylc
+      min_size: 1
+      max_size: 3
+      desired_capacity: 1
+      region: us-east-1
+      vpc_zone_identifier:
+        - subnet-250b9f1b
+        - subnet-34f1cb3b
+      health_check_type: EC2
+      health_check_period: 300
+
+# create scale down policy
+ - name: create scale down  policy
+   ec2_scaling_policy:
+      state: present
+      region: us-east-1
+      name: scale-down-policy
+      adjustment_type: ChangeInCapacity
+      asg_name: myasg
+      scaling_adjustment: -1
+      min_adjustment_step: -1
+      cooldown: 300
+   register: scale_down_policy
+   tags: scaling_policy
+
+# create scale up policy
+ - name: create scale up policy
+   ec2_scaling_policy:
+      state: present
+      region: us-east-1
+      name: scale-up-policy
+      adjustment_type: ChangeInCapacity
+      asg_name: myasg
+      scaling_adjustment: 1
+      min_adjustment_step: 1
+      cooldown: 300
+   register: scale_up_policy
+   tags: scaling_policy
+
+# create scale down alarm
+ - name: create scale down alarm
+   ec2_metric_alarm:
+      state: present
+      region: us-east-1
+      name: mysda
+      metric: CPUUtilization
+      namespace: "AWS/EC2"
+      statistic: Average
+      comparison: "<="
+      threshold: 15
+      period: 60
+      evaluation_periods: 3
+      unit: "Percent"
+      description: "This will alarm when cpu usage average is lower than 5% for 15 minutes "
+      dimensions:
+        AutoScalingGroupName: myasg
+      alarm_actions:  "{{scale_down_policy.arn}}"
+   tags: alarm
+
+# create scale up alarm
+ - name: create scale up alarm
+   ec2_metric_alarm:
+      state: present
+      region: us-east-1
+      name: mysda
+      metric: CPUUtilization
+      namespace: "AWS/EC2"
+      statistic: Average
+      comparison: ">="
+      threshold: 15.0
+      period: 60
+      evaluation_periods: 3
+      unit: "Percent"
+      description: "This will alarm when cpu usage average is lower than 5% for 15 minutes "
+      dimensions:
+        AutoScalingGroupName: myasg
+      alarm_actions:  "{{scale_up_policy.arn}}"
+   tags: alarm
+
+ 
