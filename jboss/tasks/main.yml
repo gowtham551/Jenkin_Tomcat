@@ -1,2 +1,3 @@
 ---
-# tasks file for jboss
+- include_tasks: 2installjava.yml
+    

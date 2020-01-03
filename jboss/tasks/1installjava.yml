@@ -25,7 +25,8 @@
   file:
     path: /opt/wildfly
     state: directory
-   
+
+# move files from wildfly-14.0.1.Final to wildfly
 - name: move fiels
   copy:
     src: /opt/wildfly-14.0.1.Final/*
@@ -38,13 +39,16 @@
     dest: /opt/wildfly/standalone/configuration/standalone.xml
 
 # sudo /opt/wildfly/bin/add-user.sh
-- name: Add the user 'johnd' with a specific uid and a primary group of 'admin'
-  user:
-    name: johnd
-    comment: John Doe
-    group: admin
-# question.j2
-# sudo sh /opt/wildfly/bin/standalone.sh
+- name: Generic question with multiple different responses
+  expect:
+    command: /opt/wildfly/bin/add-user.sh
+    responses:
+      Question:
+        - (a): a
+        - Username : gowtham
+        - Password : 1234
+        - Are you sure you want to use the password entered yes/no? : yes
 
+# sudo sh /opt/wildfly/bin/standalone.sh
 - name: The below command will start the wildfly instance.
   command: sudo sh /opt/wildfly/bin/standalone.sh
