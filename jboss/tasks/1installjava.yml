@@ -1,0 +1,50 @@
+---
+# install java
+# sudo apt-get install default-jdk -y
+- name: install java
+  apt:
+    name: default-jdk
+    state: present
+
+# wget http://download.jboss.org/wildfly/14.0.1.Final/wildfly-14.0.1.Final.tar.gz
+- name: Download jboss file tar.gz
+  get_url:
+    url: http://download.jboss.org/wildfly/14.0.1.Final/wildfly-14.0.1.Final.tar.gz
+    dest: /opt
+  ##  dest: /opt/wildfly-14.0.1.Final.tar.gz
+
+# cd /opt
+# tar -xvzf wildfly-14.0.1.Final.tar.gz
+- name: Extract wildfly-14.0.1.Final.tar.gz into /opt
+  unarchive:
+    src: /opt/wildfly-14.0.1.Final.tar.gz
+    dest: /opt/wildfly-14.0.1.Final
+
+# sudo mv wildfly-14.0.1.Final wildfly
+- name: Create a directory 
+  file:
+    path: /opt/wildfly
+    state: directory
+   
+- name: move fiels
+  copy:
+    src: /opt/wildfly-14.0.1.Final/*
+    dest: /opt/wildfly
+
+# sudo nano /opt/wildfly/standalone/configuration/standalone.xml
+- name: tomcat user context
+  template:
+    src: templates/standalone.j2
+    dest: /opt/wildfly/standalone/configuration/standalone.xml
+
+# sudo /opt/wildfly/bin/add-user.sh
+- name: Add the user 'johnd' with a specific uid and a primary group of 'admin'
+  user:
+    name: johnd
+    comment: John Doe
+    group: admin
+# question.j2
+# sudo sh /opt/wildfly/bin/standalone.sh
+
+- name: The below command will start the wildfly instance.
+  command: sudo sh /opt/wildfly/bin/standalone.sh
